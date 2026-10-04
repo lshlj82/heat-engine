@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Engines and Refrigerators, Interactively</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#EDF1F4; --surface:#F8FAFC; --ink:#15202B; --muted:#56636F; --rule:#C5CFD7; --band:#E2E8ED;
+  --hot:#C4402B; --cold:#2B67D1; --work:#2E7A57; --acc:#7B3FB0; --gold:#C8901A; --res:#8B98A4; --bad:#B42318;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Instrument Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743; --band:#1B2631;
+    --hot:#FF7A66; --cold:#6E9FF2; --work:#5CC593; --acc:#B392F0; --gold:#F0C05C; --res:#5B6976; --bad:#FF6B5B;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E151C; --surface:#141D26; --ink:#E3E9EE; --muted:#97A4B0; --rule:#2B3743; --band:#1B2631;
+  --hot:#FF7A66; --cold:#6E9FF2; --work:#5CC593; --acc:#B392F0; --gold:#F0C05C; --res:#5B6976; --bad:#FF6B5B;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:1.1rem;line-height:1.62;-webkit-font-smoothing:antialiased}
+img,canvas{max-width:100%}
+a{color:var(--acc)}
+:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.prose{max-width:40rem}
+
+header.hero{padding:clamp(2.5rem,7vw,5rem) 0 1.5rem}
+.credit{font-family:var(--sans);font-size:.9rem;color:var(--muted);margin:0 0 1.25rem}
+h1{font-weight:500;font-size:clamp(2.5rem,7.5vw,5.25rem);line-height:.98;letter-spacing:-.025em;margin:0 0 1.25rem;max-width:12ch}
+.lede{font-size:clamp(1.15rem,2.2vw,1.35rem);max-width:37rem;margin:0}
+
+section{padding:clamp(2.5rem,6vw,4rem) 0;border-top:1px solid var(--rule)}
+section:first-of-type{border-top:0;padding-top:1rem}
+h2{font-weight:500;font-size:clamp(1.7rem,3.5vw,2.35rem);line-height:1.1;letter-spacing:-.015em;margin:0 0 1rem}
+h3{font-family:var(--sans);font-weight:600;font-size:1rem;margin:1.75rem 0 .5rem}
+p{margin:0 0 1rem}
+.note{font-size:.95rem;color:var(--muted)}
+
+.eq{display:block;text-align:center;margin:1.25rem 0;overflow-x:auto;overflow-y:hidden;padding:.25rem 0}
+.eq.multi{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;column-gap:2.2em;row-gap:.65rem}
+.boxed.multi{display:inline-flex;flex-wrap:wrap;justify-content:center;align-items:center;column-gap:2em;row-gap:.6rem;max-width:100%}
+.eqp{max-width:100%}
+.multi.chain{column-gap:.35em}
+mjx-container{color:inherit}
+mjx-container[display="true"]{margin:0 !important}
+.stats mjx-container,.legend mjx-container,.cap mjx-container,.ctl small mjx-container,table mjx-container{font-size:105%}
+.ctl output mjx-container{font-size:95%}
+.boxed{display:inline-block;border:1.5px solid var(--acc);padding:.5rem 1rem;border-radius:3px}
+
+.fig{display:grid;grid-template-columns:minmax(0,1fr) 17.5rem;gap:1.5rem;align-items:start;margin-top:1.5rem}
+@media (max-width:820px){.fig{grid-template-columns:1fr}}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:1rem}
+.canvas-holder{background:var(--surface);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+canvas{display:block;width:100%}
+
+.ctl{font-family:var(--sans);font-size:.9rem;margin-bottom:1.1rem}
+.ctl:last-child{margin-bottom:0}
+.ctl label{display:flex;justify-content:space-between;align-items:baseline;gap:.75rem;font-weight:500;margin-bottom:.3rem}
+.ctl .lt{flex:1 1 auto}
+.ctl .lbl{display:block;font-weight:500;margin-bottom:.4rem}
+.ctl output{flex:0 0 auto;white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted);font-weight:400}
+.ctl small{display:block;color:var(--muted);line-height:1.4;margin-top:.25rem}
+input[type=range]{width:100%;accent-color:var(--acc);margin:0}
+.btns{display:flex;flex-wrap:wrap;gap:.5rem}
+button{font-family:var(--sans);font-size:.88rem;font-weight:500;color:var(--ink);background:transparent;border:1px solid var(--rule);border-radius:4px;padding:.45rem .8rem;cursor:pointer}
+button:hover{border-color:var(--ink)}
+button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ctl label.check{display:flex;justify-content:flex-start;align-items:center;gap:.5rem;font-weight:500;cursor:pointer}
+.check input{width:1rem;height:1rem;margin:0;accent-color:var(--acc)}
+
+.stats{font-family:var(--sans);font-size:.9rem;display:grid;grid-template-columns:auto auto;gap:.35rem 1rem;margin:0}
+.stats dt{color:var(--muted)}
+.stats dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:500;white-space:nowrap}
+.stats .sep{grid-column:1/-1;border-top:1px solid var(--rule);margin:.3rem 0}
+.legend{font-family:var(--sans);font-size:.85rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:1rem;margin:.6rem 0 0;align-items:center}
+.swatch{display:inline-block;width:.75rem;height:.75rem;border-radius:2px;vertical-align:-1px;margin-right:.35rem}
+.swatch.line{height:3px;width:1.1rem;vertical-align:3px;border-radius:0}
+.swatch.dash{height:0;width:1.1rem;vertical-align:3px;border-radius:0;border-top:3px dashed}
+.cap{font-family:var(--sans);font-size:.85rem;color:var(--muted);margin:.5rem .25rem 0}
+.verdict{font-family:var(--sans);font-size:1rem;font-weight:500;margin:.85rem 0 0;max-width:40rem}
+.verdict.bad{color:var(--bad)}
+.big{font-size:clamp(2.2rem,5.5vw,3.2rem);line-height:1;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin:.1rem 0 .3rem}
+.tblwrap{overflow-x:auto}
+table.steps{width:100%;border-collapse:collapse;font-family:var(--sans);font-size:.88rem;margin-top:1rem;font-variant-numeric:tabular-nums}
+table.steps th,table.steps td{padding:.4rem .55rem;border-bottom:1px solid var(--rule);text-align:right}
+table.steps th:first-child,table.steps td:first-child,table.steps th:nth-child(2),table.steps td:nth-child(2),table.steps th:last-child,table.steps td:last-child{text-align:left}
+table.steps th{font-weight:600;color:var(--muted)}
+table.steps tr.on td{background:var(--band)}
+.pos{color:var(--hot)} .neg{color:var(--cold)}
+
+footer{border-top:1px solid var(--rule);padding:2rem 0 3rem;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
+footer p{margin:0 0 .4rem}
+</style>
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false }
+};
+</script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <p class="credit">An interactive demo created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Statistical Physics 1, Chapter 4, Engines and Refrigerators, Sections 4.1 to 4.3)</p>
+  <h1>Engines and Refrigerators</h1>
+  <p class="lede">An engine turns heat into work, but never all of it: some heat must always be thrown away. How much is a matter of entropy, and it sets a hard limit on every engine and refrigerator ever built.</p>
+</header>
+
+<!-- ============ HEAT ENGINES ============ -->
+<section id="engines" aria-labelledby="h-eng">
+  <h2 id="h-eng">Heat engines and the Carnot limit</h2>
+  <div class="prose">
+    <p>A <strong>heat engine</strong> absorbs heat and converts part of it into work. An isothermal expansion turns all the absorbed heat into work, but it can’t continue: to run periodically, an engine must operate in <strong>cycles</strong>, returning to its original state, and that forces it to dump some waste heat into its environment. (An internal-combustion engine counts too, treating the burned fuel as a heat source even though it burns inside.) It absorbs \(Q_h\) from a hot <strong>reservoir</strong> at \(T_h\) (something so large its temperature doesn’t change noticeably) and expels \(Q_c\) to a cold one at \(T_c\), so by the first law \(Q_h = Q_c + W\) and its efficiency is</p>
+    <div class="eq">\[ e \equiv \frac{\text{benefit}}{\text{cost}} = \frac{W}{Q_h} = 1 - \frac{Q_c}{Q_h} \]</div>
+    <p>Entropy settles the maximum. The engine returns to its starting state, so it must expel at least as much entropy as it absorbs: \(Q_c/T_c \ge Q_h/T_h\), which gives</p>
+    <div class="eq"><span class="boxed">\( \displaystyle e \le 1 - \frac{T_c}{T_h} \)</span></div>
+    <p>Between 500 K and 300 K, no engine can exceed 40%. The first law says you can’t win (\(W\) can’t exceed \(Q_h\)); the second says you can’t even break even (\(e = 1\) only if \(T_c = 0\) or \(T_h = \infty\)). A less efficient engine produces extra entropy during its operation, which it must dispose of by dumping extra heat into the cold reservoir.</p>
+  </div>
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="flowCanvas" aria-label="Energy and entropy flowing through a heat engine or refrigerator between two reservoirs"></canvas></div>
+      <p class="verdict" id="flowV"></p>
+    </div>
+    <div class="panel">
+      <div class="ctl"><span class="lbl">Machine</span>
+        <div class="btns"><button type="button" data-mode="engine" aria-pressed="true">Engine</button><button type="button" data-mode="fridge">Refrigerator</button></div>
+      </div>
+      <div class="ctl">
+        <label for="fTh"><span class="lt">\(T_h\)</span> <output id="fThOut"></output></label>
+        <input type="range" id="fTh" min="250" max="1200" step="1" value="500">
+      </div>
+      <div class="ctl">
+        <label for="fTc"><span class="lt">\(T_c\)</span> <output id="fTcOut"></output></label>
+        <input type="range" id="fTc" min="4" max="400" step="1" value="300">
+      </div>
+      <div class="ctl">
+        <label for="fFrac"><span class="lt" id="fFracL">Efficiency, as a share of the limit</span> <output id="fFracOut"></output></label>
+        <input type="range" id="fFrac" min="0" max="1.3" step="0.01" value="0.75">
+        <small>Push past 100% to see what the second law forbids.</small>
+      </div>
+      <dl class="stats" id="fStats"></dl>
+    </div>
+  </div>
+
+  <h3>The Carnot cycle</h3>
+  <div class="prose">
+    <p>An engine that does reach the limit needs a working substance, such as a gas, that absorbs heat while only slightly cooler than \(T_h\) and expels it while only slightly warmer than \(T_c\), so that no new entropy is made. That is the <strong>Carnot cycle</strong>: (1) isothermal expansion at \(T_h\), absorbing \(Q_h\); (2) adiabatic expansion, cooling to \(T_c\); (3) isothermal compression at \(T_c\), expelling \(Q_c\); (4) adiabatic compression, back to \(T_h\). For an ideal gas (Problem 4.5), \(Q_h = Nk_{\mathrm{B}}T_h\ln(V_2/V_1)\) and \(Q_c = Nk_{\mathrm{B}}T_c\ln(V_3/V_4)\), while \(T_h^{f/2}V_2 = T_c^{f/2}V_3\) and \(T_c^{f/2}V_4 = T_h^{f/2}V_1\) give \(V_2/V_1 = V_3/V_4\), so</p>
+    <div class="eq multi chain"><span class="eqp">\( \displaystyle e = \frac{W}{Q_h} = \frac{Nk_{\mathrm{B}}\ln(V_2/V_1)\,(T_h - T_c)}{Nk_{\mathrm{B}}T_h\ln(V_2/V_1)} \)</span><span class="eqp">\( \displaystyle = 1 - \frac{T_c}{T_h} \)</span></div>
+    <p>The catch: every step must be quasistatic, so it takes forever to get a significant amount of work out. Very efficient, horribly impractical. The cycle explorer below runs it, along with two real engines.</p>
+  </div>
+
+  <h3>Maximum power instead of maximum efficiency</h3>
+  <div class="prose">
+    <p>Problem 4.6, the Curzon–Ahlborn “endoreversible” engine. To get real power, let heat flow at a finite rate: the gas works at \(T_{hw} < T_h\) and \(T_{cw} > T_c\), with \(Q_h/\Delta t = K(T_h - T_{hw})\) and \(Q_c/\Delta t = K(T_{cw} - T_c)\), and a reversible Carnot cycle in between. Entropy balance fixes \(T_{cw}\) for each \(T_{hw}\). Power is zero both when \(T_{hw} = T_h\) (no heat flows) and when the working temperatures meet (no work), so it peaks in between, at \(T_{hw} = \tfrac12(T_h + \sqrt{T_hT_c})\), where</p>
+    <div class="eq"><span class="boxed">\( \displaystyle e = 1 - \sqrt{T_c/T_h} \)</span></div>
+  </div>
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="caCanvas" aria-label="Power and efficiency of the endoreversible engine versus the temperature of its working substance"></canvas></div>
+      <div class="legend">
+        <span><span class="swatch line" style="background:var(--work)"></span>Power, \(P/K\) (left axis)</span>
+        <span><span class="swatch dash" style="border-color:var(--acc)"></span>Efficiency (right axis)</span>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ctl">
+        <label for="caTh"><span class="lt">\(T_h\)</span> <output id="caThOut"></output></label>
+        <input type="range" id="caTh" min="400" max="1500" step="1" value="873">
+      </div>
+      <div class="ctl">
+        <label for="caTc"><span class="lt">\(T_c\)</span> <output id="caTcOut"></output></label>
+        <input type="range" id="caTc" min="250" max="400" step="1" value="298">
+      </div>
+      <dl class="stats">
+        <dt>Best \(T_{hw}\)</dt><dd id="caThw">–</dd>
+        <dt>Then \(T_{cw}\)</dt><dd id="caTcw">–</dd>
+        <dt class="sep"></dt>
+        <dt>Efficiency at maximum power</dt><dd id="caE">–</dd>
+        <dt>Carnot efficiency</dt><dd id="caC">–</dd>
+      </dl>
+      <p class="cap" style="margin:.75rem 0 0">The default is a coal-fired steam turbine, 600 °C to 25 °C. Real coal plants reach about 40%, much closer to the endoreversible estimate than to Carnot’s.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REFRIGERATORS ============ -->
+<section id="fridges" aria-labelledby="h-fr">
+  <h2 id="h-fr">Refrigerators</h2>
+  <div class="prose">
+    <p>A <strong>refrigerator</strong> is a heat engine run in reverse: work \(W\) (from electricity, say) moves heat \(Q_c\) out of the cold reservoir and dumps \(Q_h = Q_c + W\) into the hot one. Its figure of merit is the <strong>coefficient of performance</strong>, which can exceed 1:</p>
+    <div class="eq multi"><span class="eqp">\( \displaystyle \mathrm{COP} = \frac{Q_c}{W} = \frac{1}{Q_h/Q_c - 1} \le \frac{T_c}{T_h - T_c}, \)</span></div>
+    <p>since the entropy dumped into the hot reservoir must be at least as much as the entropy taken from the cold: \(Q_h/T_h \ge Q_c/T_c\). A kitchen refrigerator between 298 K and 255 K has \(\mathrm{COP} \le 5.9\): each joule of electricity can move up to 5.9 J out of the freezer and dump 6.9 J into the kitchen. The COP is largest when the temperatures are close, and poor when \(T_c\) is very low, such as 4 K for liquid helium. Use the machine toggle above to explore it. The best refrigerator is a Carnot cycle run backward, with the gas slightly hotter than \(T_h\) while expelling heat and slightly colder than \(T_c\) while absorbing it; it, too, is far too slow to be practical, and Section 4.4 describes a real one.</p>
+    <p class="note">This is why an air conditioner goes in a window, not in the middle of a room, and why you can’t cool your kitchen by leaving the refrigerator door open: it dumps \(Q_h = Q_c + W\), more heat than it removes, into the same room (Problems 4.7 and 4.8).</p>
+  </div>
+
+  <h3>Why no machine can beat Carnot</h3>
+  <div class="prose">
+    <p>Early versions of the second law, built on experience, stated that every heat engine must produce some waste heat and every refrigerator needs some work input. Carnot and others realized that these follow from the limit \(e \le 1 - T_c/T_h\): an engine that beat it could drive a Carnot refrigerator and, together, move heat from cold to hot with no work at all (Problem 4.16). Carnot also recognized a quantity associated with heat that flows in and out of an ideal engine in equal amounts; Rudolf Clausius made it precise in 1865 as \(Q/T\) and named it entropy, and Ludwig Boltzmann worked out what it actually is by 1877. Claim an efficiency and see what follows:</p>
+  </div>
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="combCanvas" aria-label="A claimed super-efficient engine driving a Carnot refrigerator, and the net effect"></canvas></div>
+      <p class="verdict" id="combV"></p>
+    </div>
+    <div class="panel">
+      <div class="ctl">
+        <label for="cbE"><span class="lt">Claimed engine efficiency</span> <output id="cbEOut"></output></label>
+        <input type="range" id="cbE" min="0.05" max="0.95" step="0.01" value="0.5">
+        <small>Between \(T_h = 500\) K and \(T_c = 300\) K, where Carnot allows 40%.</small>
+      </div>
+      <dl class="stats" id="cbStats"></dl>
+      <p class="cap" style="margin:.75rem 0 0">The engine takes in 100 J from the hot reservoir. All its work drives a Carnot refrigerator working between the same two reservoirs.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REAL ENGINES ============ -->
+<section id="real" aria-labelledby="h-real">
+  <h2 id="h-real">Real heat engines</h2>
+  <div class="prose">
+    <p>The familiar gasoline engine follows, in idealized form, the <strong>Otto cycle</strong>: adiabatic compression, ignition (heat in at constant volume), the adiabatic power stroke, and exhaust (heat out at constant volume). With compression ratio \(V_1/V_2\) and \(\gamma = (f+2)/f\) (\(7/5\) for air, mostly N<sub>2</sub> and O<sub>2</sub>), Problem 4.18 gives</p>
+    <div class="eq">\[ e = 1 - \frac{T_4 - T_1}{T_3 - T_2} = 1 - \left(\frac{V_2}{V_1}\right)^{\gamma-1} = 1 - \frac{T_1}{T_2} \]</div>
+    <p>less than the Carnot efficiency between its highest and lowest temperatures, and even less in practice because of friction. A higher compression ratio helps, but risks preignition; the <strong>Diesel</strong> engine avoids this by compressing only air and then spraying in the fuel. The <strong>Stirling engine</strong> (Problem 4.21) is a true external-heat engine of two isotherms and two constant-volume steps, during which the gas passes through a <strong>regenerator</strong> that stores heat from one step and returns it in the other. With a perfect regenerator its efficiency equals Carnot’s; without one,</p>
+    <div class="eq multi"><span class="eqp">\( \displaystyle e = \frac{\eta_c}{1 + f\eta_c/[2\ln(V_f/V_i)]} < \eta_c, \)</span><span class="eqp">\( \displaystyle \eta_c = 1 - \frac{T_c}{T_h} \)</span></div>
+  </div>
+  <div class="fig">
+    <div>
+      <div class="canvas-holder"><canvas id="cycCanvas" aria-label="Pressure-volume diagram of the selected cycle, with the current point moving around it"></canvas></div>
+      <div class="canvas-holder" style="margin-top:.75rem"><canvas id="cylCanvas" aria-label="The working gas in its cylinder at the current point of the cycle"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="ctl"><span class="lbl">Cycle</span>
+        <div class="btns"><button type="button" data-cyc="carnot" aria-pressed="true">Carnot</button><button type="button" data-cyc="otto">Otto</button><button type="button" data-cyc="stirling">Stirling</button></div>
+      </div>
+      <div id="ctlCarnot">
+        <div class="ctl"><label for="cTh"><span class="lt">\(T_h\)</span> <output id="cThOut"></output></label><input type="range" id="cTh" min="350" max="1000" step="5" value="500"></div>
+        <div class="ctl"><label for="cTc"><span class="lt">\(T_c\)</span> <output id="cTcOut"></output></label><input type="range" id="cTc" min="100" max="340" step="5" value="300"></div>
+        <div class="ctl"><label for="cR"><span class="lt">Isothermal expansion \(V_2/V_1\)</span> <output id="cROut"></output></label><input type="range" id="cR" min="1.2" max="4" step="0.1" value="2"></div>
+      </div>
+      <div id="ctlOtto" hidden>
+        <div class="ctl"><label for="oR"><span class="lt">Compression ratio \(V_1/V_2\)</span> <output id="oROut"></output></label><input type="range" id="oR" min="2" max="14" step="0.5" value="8"></div>
+        <div class="ctl"><label for="oT3"><span class="lt">Peak temperature \(T_3\)</span> <output id="oT3Out"></output></label><input type="range" id="oT3" min="1000" max="3000" step="10" value="2000"></div>
+        <small class="cap" style="display:block;margin:0 0 1rem">Intake at \(T_1 = 300\) K.</small>
+      </div>
+      <div id="ctlStirling" hidden>
+        <div class="ctl"><label for="sTh"><span class="lt">\(T_h\)</span> <output id="sThOut"></output></label><input type="range" id="sTh" min="350" max="1000" step="5" value="600"></div>
+        <div class="ctl"><label for="sTc"><span class="lt">\(T_c\)</span> <output id="sTcOut"></output></label><input type="range" id="sTc" min="100" max="340" step="5" value="300"></div>
+        <div class="ctl"><label for="sR"><span class="lt">Compression ratio \(V_f/V_i\)</span> <output id="sROut"></output></label><input type="range" id="sR" min="1.5" max="5" step="0.1" value="3"></div>
+        <div class="ctl"><label class="check"><input type="checkbox" id="sReg" checked> Regenerator</label></div>
+      </div>
+      <div class="ctl"><label for="cF"><span class="lt">Working gas</span></label>
+        <div class="btns"><button type="button" data-f="5" aria-pressed="true">Air, f = 5</button><button type="button" data-f="3">Monatomic, f = 3</button></div>
+      </div>
+      <dl class="stats">
+        <dt>Efficiency</dt><dd id="cyE">–</dd>
+        <dt>Carnot, between \(T_{\max}\) and \(T_{\min}\)</dt><dd id="cyC">–</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="tblwrap">
+    <table class="steps" aria-label="Heat and work in each step of the cycle, for one mole">
+      <thead><tr><th>Step</th><th>Process</th><th>Heat into gas (J)</th><th>Work by gas (J)</th><th>Heat exchanged with</th></tr></thead>
+      <tbody id="cyRows"></tbody>
+    </table>
+  </div>
+  <p class="cap">For one mole. Positive heat enters the gas; positive work is done by the gas. The highlighted row is the step in progress.</p>
+</section>
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>Created by Claude Opus 5.5, based on the lecture notes by Sang Hoon Lee (Statistical Physics 1, Chapter 4, Engines and Refrigerators, Sections 4.1 to 4.3, with Problems 4.5 to 4.8, 4.16 to 4.18 and 4.21).</p>
+    <p>\(R = 8.314\ \mathrm{J/(mol\,K)}\). The Curzon–Ahlborn analysis is from F. L. Curzon and B. Ahlborn, <i>American Journal of Physics</i> 43, 22 (1975). Equations typeset with MathJax.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+"use strict";
+const $ = id => document.getElementById(id);
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let C = {};
+function readColors(){
+  const cs = getComputedStyle(document.documentElement);
+  ['bg','surface','ink','muted','rule','band','hot','cold','work','acc','gold','res','bad'].forEach(k => C[k] = cs.getPropertyValue('--'+k).trim());
+}
+readColors();
+const SANS = '"Instrument Sans", system-ui, sans-serif';
+const SERIF = '"Newsreader", Georgia, serif';
+function fit(cv, LW, LH){
+  const w = cv.parentElement.clientWidth || LW, hgt = w*LH/LW;
+  cv.style.height = hgt + 'px';
+  const d = window.devicePixelRatio || 1;
+  cv.width = Math.round(w*d); cv.height = Math.round(hgt*d);
+  const ctx = cv.getContext('2d'); const s = w*d/LW;
+  ctx.setTransform(s,0,0,s,0,0);
+  return ctx;
+}
+function rich(c, x, y, size, parts, align){
+  c.save(); c.textAlign = 'left';
+  const fontOf = st => st==='i' ? 'italic '+size+'px '+SERIF : st==='isub' ? 'italic '+(size*0.7)+'px '+SERIF : (st==='sub'||st==='sup') ? (size*0.7)+'px '+SERIF : st==='s' ? (size*0.88)+'px '+SANS : st==='sb' ? '600 '+(size*0.88)+'px '+SANS : size+'px '+SERIF;
+  const widths = parts.map(([t,st]) => { c.font = fontOf(st); return c.measureText(t).width; });
+  const total = widths.reduce((a,b)=>a+b,0);
+  let cx = align==='center' ? x-total/2 : align==='right' ? x-total : x;
+  parts.forEach(([t,st],i) => { c.font = fontOf(st); const dy = (st==='sub'||st==='isub') ? size*0.25 : st==='sup' ? -size*0.38 : 0; c.fillText(t, cx, y+dy); cx += widths[i]; });
+  c.restore(); return total;
+}
+const signed = (x,d) => (x<0 && Math.abs(x).toFixed(d) !== (0).toFixed(d) ? '−' : '') + Math.abs(x).toFixed(d);
+const pct = x => (x*100).toFixed(1) + '%';
+function axes(c, W, H, box, xr, yr, xt, yt, xlab, ylab, xfmt, yfmt){
+  const [L,T,Rr,B] = box;
+  c.clearRect(0,0,W,H); c.fillStyle=C.surface; c.fillRect(0,0,W,H);
+  const X = v => L + (v-xr[0])/(xr[1]-xr[0])*(W-L-Rr), Y = v => H-B - (v-yr[0])/(yr[1]-yr[0])*(H-T-B);
+  c.font='12px '+SANS; c.fillStyle=C.muted; c.textAlign='center';
+  xt.forEach(v => { c.strokeStyle = C.band; c.lineWidth=1; c.beginPath(); c.moveTo(X(v),T); c.lineTo(X(v),H-B); c.stroke(); c.fillText(xfmt ? xfmt(v) : String(v), X(v), H-B+16); });
+  c.textAlign='right'; yt.forEach(v => { c.strokeStyle = v===0 ? C.rule : C.band; c.beginPath(); c.moveTo(L,Y(v)); c.lineTo(W-Rr,Y(v)); c.stroke(); c.fillText(yfmt ? yfmt(v) : String(v), L-6, Y(v)+4); });
+  c.fillStyle=C.muted; if (xlab) rich(c, W-Rr-2, H-8, 14, xlab, 'right');
+  if (ylab){ c.save(); c.globalAlpha=0.85; c.fillStyle=C.surface; c.fillRect(L+2, T-2, 170, 20); c.restore(); c.fillStyle=C.muted; rich(c, L+6, T+12, 14, ylab, 'left'); }
+  c.strokeStyle=C.muted; c.lineWidth=1; c.beginPath(); c.moveTo(L,T); c.lineTo(L,H-B); c.lineTo(W-Rr,H-B); c.stroke();
+  return {X, Y};
+}
+const R = 8.314462618;
+
+/* ================= ENERGY & ENTROPY FLOW ================= */
+const FL = {mode:'engine', Th:500, Tc:300, frac:0.75};
+function arrow(c, x0, y0, x1, y1, w, col, label){
+  if (w < 0.5) return;
+  const ang = Math.atan2(y1-y0, x1-x0), hl = Math.min(22, 10 + w*0.6), hw = w/2 + 6;
+  const bx = x1 - Math.cos(ang)*hl, by = y1 - Math.sin(ang)*hl, nx = -Math.sin(ang), ny = Math.cos(ang);
+  c.fillStyle = col; c.beginPath();
+  c.moveTo(x0 + nx*w/2, y0 + ny*w/2); c.lineTo(bx + nx*w/2, by + ny*w/2); c.lineTo(bx + nx*hw, by + ny*hw); c.lineTo(x1, y1); c.lineTo(bx - nx*hw, by - ny*hw); c.lineTo(bx - nx*w/2, by - ny*w/2); c.lineTo(x0 - nx*w/2, y0 - ny*w/2); c.closePath(); c.fill();
+}
+function flowRender(){
+  const {mode, Th, Tc, frac} = FL;
+  const isE = mode === 'engine';
+  document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  $('fThOut').textContent = Th + ' K'; $('fTcOut').textContent = Tc + ' K'; $('fFracOut').textContent = Math.round(frac*100) + '%';
+  $('fFracL').textContent = isE ? 'Efficiency, as a share of the limit' : 'COP, as a share of the limit';
+  let Qh, Qc, W, lim, perf;
+  if (isE){ lim = 1 - Tc/Th; perf = Math.min(0.999, frac*lim); Qh = 100; W = perf*Qh; Qc = Qh - W; }
+  else { lim = Tc/(Th - Tc); perf = frac*lim; W = 20; Qc = perf*W; Qh = Qc + W; }
+  const dS = Qc/Tc - Qh/Th;  // total entropy change of the reservoirs per cycle (engine: positive is fine; fridge: sign flips)
+  const dStot = isE ? (Qc/Tc - Qh/Th) : (Qh/Th - Qc/Tc);
+  const bad = dStot < -1e-9;
+  $('fStats').innerHTML = (isE ? '<dt>Efficiency</dt><dd>' + pct(perf) + '</dd><dt>Carnot limit</dt><dd>' + pct(lim) + '</dd>' : '<dt>COP</dt><dd>' + perf.toFixed(2) + '</dd><dt>Limit, T<sub>c</sub>/(T<sub>h</sub> − T<sub>c</sub>)</dt><dd>' + lim.toFixed(2) + '</dd>') +
+    '<dt class="sep"></dt><dt>Entropy ' + (isE ? 'from hot, Q<sub>h</sub>/T<sub>h</sub>' : 'from cold, Q<sub>c</sub>/T<sub>c</sub>') + '</dt><dd>' + (isE ? (Qh/Th) : (Qc/Tc)).toFixed(3) + ' J/K</dd>' +
+    '<dt>Entropy ' + (isE ? 'to cold, Q<sub>c</sub>/T<sub>c</sub>' : 'to hot, Q<sub>h</sub>/T<sub>h</sub>') + '</dt><dd>' + (isE ? (Qc/Tc) : (Qh/Th)).toFixed(3) + ' J/K</dd>' +
+    '<dt>Net entropy created</dt><dd style="color:' + (bad ? 'var(--bad)' : 'inherit') + '">' + (dStot >= 0 ? '+' : '') + signed(dStot, 3) + ' J/K</dd>';
+  const v = $('flowV');
+  v.className = 'verdict' + (bad ? ' bad' : '');
+  v.textContent = bad ? 'Forbidden: this would destroy entropy, violating the second law.' : frac > 0.995 ? 'At the limit: no entropy is created. This is a Carnot ' + (isE ? 'engine' : 'refrigerator') + '.' : isE ? 'Allowed: the engine creates entropy, so it must dump extra waste heat.' : 'Allowed: the refrigerator creates entropy, so it needs extra work.';
+  const c = flCtx; if (!c) return;
+  const W0=640, H0=380; c.clearRect(0,0,W0,H0); c.fillStyle=C.surface; c.fillRect(0,0,W0,H0);
+  const cx = 320, sc = 0.9;
+  // reservoirs
+  c.fillStyle=C.hot; c.globalAlpha=0.16; c.fillRect(110, 18, 420, 56); c.globalAlpha=1; c.strokeStyle=C.hot; c.lineWidth=1.5; c.strokeRect(110, 18, 420, 56);
+  c.fillStyle=C.cold; c.globalAlpha=0.16; c.fillRect(110, 306, 420, 56); c.globalAlpha=1; c.strokeStyle=C.cold; c.strokeRect(110, 306, 420, 56);
+  c.fillStyle=C.ink; c.font='600 14px '+SANS; c.textAlign='center'; c.fillText('Hot reservoir, ' + Th + ' K', 320, 51); c.fillText('Cold reservoir, ' + Tc + ' K', 320, 339);
+  // machine
+  c.fillStyle=C.band; c.fillRect(cx-70, 150, 140, 80); c.strokeStyle=C.ink; c.lineWidth=1.5; c.strokeRect(cx-70, 150, 140, 80);
+  c.fillStyle=C.ink; c.font='600 14px '+SANS; c.fillText(isE ? 'Engine' : 'Refrigerator', cx, 195);
+  const wQh = Math.max(2, Qh*sc*(isE ? 0.6 : 0.6*100/Math.max(Qh,100)*Math.min(1, 100/Qh)*1.0)), unit = isE ? 0.6 : 0.6*100/Math.max(120, Qh);
+  const w = q => Math.max(1.5, q*unit);
+  if (isE){
+    arrow(c, cx, 76, cx, 148, w(Qh), C.hot); arrow(c, cx, 232, cx, 304, w(Qc), C.cold); arrow(c, cx+72, 190, cx+72+Math.max(40, 30 + W*1.2), 190, w(W), C.work);
+  } else {
+    arrow(c, cx, 304, cx, 232, w(Qc), C.cold); arrow(c, cx, 148, cx, 76, w(Qh), C.hot); arrow(c, cx+72+Math.max(60, 30 + W*1.2), 190, cx+72, 190, w(W), C.work);
+  }
+  c.fillStyle=C.hot; rich(c, cx + w(Qh)/2 + 14, 116, 15, [['Q','i'],['h','isub'],[' = ' + Qh.toFixed(1) + ' J','s']], 'left');
+  c.fillStyle=C.cold; rich(c, cx + w(Qc)/2 + 14, 272, 15, [['Q','i'],['c','isub'],[' = ' + Qc.toFixed(1) + ' J','s']], 'left');
+  c.fillStyle=C.work; rich(c, cx + 86, 168, 15, [['W','i'],[' = ' + W.toFixed(1) + ' J','s']], 'left');
+  c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='left'; c.fillText('Arrow widths show energy per cycle.', 16, 196);
+}
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => { FL.mode = b.dataset.mode; flowRender(); }));
+$('fTh').addEventListener('input', e => { FL.Th = +e.target.value; if (FL.Tc >= FL.Th - 5){ FL.Tc = FL.Th - 5; $('fTc').value = FL.Tc; } flowRender(); });
+$('fTc').addEventListener('input', e => { FL.Tc = +e.target.value; if (FL.Tc >= FL.Th - 5){ FL.Th = FL.Tc + 5; $('fTh').value = FL.Th; } flowRender(); });
+$('fFrac').addEventListener('input', e => { FL.frac = +e.target.value; flowRender(); });
+
+/* ================= CURZON-AHLBORN ================= */
+function caRender(){
+  const Th = +$('caTh').value, Tc = Math.min(+$('caTc').value, Th - 20);
+  $('caThOut').textContent = Th + ' K (' + Math.round(Th - 273.15) + ' °C)'; $('caTcOut').textContent = Tc + ' K (' + Math.round(Tc - 273.15) + ' °C)';
+  const tcw = x => Tc*x/(2*x - Th), Pw = x => (Th - x) - (tcw(x) - Tc), eff = x => 1 - tcw(x)/x;
+  const xbest = (Th + Math.sqrt(Th*Tc))/2;
+  $('caThw').textContent = Math.round(xbest) + ' K'; $('caTcw').textContent = Math.round(tcw(xbest)) + ' K';
+  $('caE').textContent = pct(1 - Math.sqrt(Tc/Th)); $('caC').textContent = pct(1 - Tc/Th);
+  const c = caCtx; if (!c) return;
+  const W=640, H=320; const xlo = (Th + Tc)/2, xhi = Th, pmax = Pw(xbest)*1.15;
+  // T_hw ranges from (Th + Tc)/2 (where T_cw = T_hw, so no work) up to Th (no heat flow)
+  const step = (xhi - xlo) > 400 ? 100 : 50; const xt = []; for (let v = Math.ceil(xlo/step)*step; v <= xhi; v += step) xt.push(v);
+  const ax = axes(c, W, H, [56,16,56,40], [xlo, xhi], [0, pmax], xt, [0, +(pmax/2.3).toPrecision(2), +(pmax/1.15).toPrecision(2)], [['T','i'],['hw','isub'],['  (K)','s']], [['P','i'],[' / ','r'],['K','i'],['  (K)','s']]);
+  const Ye = e => ax.Y(e/(1 - Tc/Th)*pmax/1.15);
+  c.strokeStyle=C.work; c.lineWidth=2.6; c.beginPath(); for (let i=0;i<=200;i++){ const x = xlo + (xhi-xlo)*i/200; const y = ax.Y(Math.max(0, Pw(x))); i?c.lineTo(ax.X(x),y):c.moveTo(ax.X(x),y); } c.stroke();
+  c.strokeStyle=C.acc; c.lineWidth=2; c.setLineDash([6,4]); c.beginPath(); for (let i=0;i<=200;i++){ const x = xlo + (xhi-xlo)*i/200 + 1e-6; const y = Ye(Math.max(0, eff(x))); i?c.lineTo(ax.X(x),y):c.moveTo(ax.X(x),y); } c.stroke(); c.setLineDash([]);
+  // right axis for efficiency, 0 to Carnot
+  c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='left'; const ec = 1 - Tc/Th; [0, 0.5*ec, ec].forEach(e => c.fillText(pct(e), W-52, Ye(e)+4));
+  c.strokeStyle=C.ink; c.globalAlpha=.4; c.beginPath(); c.moveTo(ax.X(xbest), 16); c.lineTo(ax.X(xbest), H-40); c.stroke(); c.globalAlpha=1;
+  c.fillStyle=C.work; c.beginPath(); c.arc(ax.X(xbest), ax.Y(Pw(xbest)), 6, 0, 7); c.fill();
+  c.fillStyle=C.acc; c.beginPath(); c.arc(ax.X(xbest), Ye(eff(xbest)), 5, 0, 7); c.fill();
+  c.fillStyle=C.muted; c.textAlign='left'; c.fillText('maximum power', ax.X(xbest)+8, ax.Y(Pw(xbest))-8);
+  c.textAlign='right'; c.fillText('no heat flows →', ax.X(xhi)-4, H-48); c.textAlign='left'; c.fillText('← no work', ax.X(xlo)+4, H-48);
+}
+['caTh','caTc'].forEach(id => $(id).addEventListener('input', caRender));
+
+/* ================= SUPER-ENGINE + CARNOT FRIDGE ================= */
+function combRender(){
+  const e = +$('cbE').value, Th = 500, Tc = 300, ec = 1 - Tc/Th;
+  $('cbEOut').textContent = pct(e);
+  const Qh = 100, W = e*Qh, Qc = Qh - W, Qcr = W*Tc/(Th - Tc), Qhr = Qcr + W, netCold = Qcr - Qc, netHot = Qhr - Qh;
+  $('cbStats').innerHTML = '<dt>Engine: Q<sub>h</sub>, W, Q<sub>c</sub></dt><dd>100, ' + W.toFixed(0) + ', ' + Qc.toFixed(0) + ' J</dd>' +
+    '<dt>Fridge: Q<sub>c,r</sub> in, Q<sub>h,r</sub> out</dt><dd>' + Qcr.toFixed(0) + ', ' + Qhr.toFixed(0) + ' J</dd><dt class="sep"></dt>' +
+    '<dt>Net heat out of the cold reservoir</dt><dd>' + signed(netCold, 1) + ' J</dd><dt>Net heat into the hot reservoir</dt><dd>' + signed(netHot, 1) + ' J</dd><dt>Net work</dt><dd>0 J</dd>';
+  const v = $('combV'), over = e > ec + 1e-9;
+  v.className = 'verdict' + (over ? ' bad' : '');
+  v.textContent = over ? 'Together they pump ' + netCold.toFixed(1) + ' J of heat from cold to hot with no work input: a refrigerator that needs no power, which the second law forbids. So no engine can beat ' + pct(ec) + '.' : Math.abs(e - ec) < 0.005 ? 'Exactly Carnot: the pair does nothing at all, a perfectly reversible combination.' : 'Below Carnot: the pair leaks ' + (-netCold).toFixed(1) + ' J of heat from hot to cold on balance, which is fine.';
+  const c = cbCtx; if (!c) return;
+  const W0=640, H0=300; c.clearRect(0,0,W0,H0); c.fillStyle=C.surface; c.fillRect(0,0,W0,H0);
+  c.fillStyle=C.hot; c.globalAlpha=0.16; c.fillRect(30, 14, 580, 44); c.globalAlpha=1; c.strokeStyle=C.hot; c.lineWidth=1.5; c.strokeRect(30, 14, 580, 44);
+  c.fillStyle=C.cold; c.globalAlpha=0.16; c.fillRect(30, 242, 580, 44); c.globalAlpha=1; c.strokeStyle=C.cold; c.strokeRect(30, 242, 580, 44);
+  c.fillStyle=C.ink; c.font='600 13px '+SANS; c.textAlign='left'; c.fillText('Hot reservoir, 500 K', 40, 41); c.fillText('Cold reservoir, 300 K', 40, 269);
+  const u = 0.5, w = q => Math.max(1.5, q*u);
+  // engine (left), refrigerator (middle)
+  const ex = 170, rx = 380;
+  [[ex,'Claimed engine'],[rx,'Carnot fridge']].forEach(([x,lab]) => { c.fillStyle=C.band; c.fillRect(x-62, 118, 124, 64); c.strokeStyle=C.ink; c.lineWidth=1.3; c.strokeRect(x-62, 118, 124, 64); c.fillStyle=C.ink; c.font='600 12px '+SANS; c.textAlign='center'; c.fillText(lab, x, 154); });
+  arrow(c, ex, 60, ex, 116, w(Qh), C.hot); arrow(c, ex, 184, ex, 240, w(Qc), C.cold);
+  arrow(c, ex+64, 150, rx-64, 150, w(W), C.work);
+  arrow(c, rx, 240, rx, 184, w(Qcr), C.cold); arrow(c, rx, 116, rx, 60, w(Qhr), C.hot);
+  c.font='12px '+SANS; c.textAlign='left';
+  c.fillStyle=C.hot; c.fillText(Qh.toFixed(0) + ' J', ex + w(Qh)/2 + 8, 92); c.fillText(Qhr.toFixed(0) + ' J', rx + w(Qhr)/2 + 8, 92);
+  c.fillStyle=C.cold; c.fillText(Qc.toFixed(0) + ' J', ex + w(Qc)/2 + 8, 216); c.fillText(Qcr.toFixed(0) + ' J', rx + w(Qcr)/2 + 8, 216);
+  c.fillStyle=C.work; c.textAlign='center'; c.fillText('W = ' + W.toFixed(0) + ' J', (ex+rx)/2, 140 - w(W)/2);
+  // net
+  const nx = 590; c.fillStyle=C.muted; c.font='600 12px '+SANS; c.textAlign='right'; c.fillText('Net effect', nx - 18, 132);
+  if (Math.abs(netCold) > 0.5){ if (netCold > 0) arrow(c, nx, 240, nx, 60, w(netCold), C.bad); else arrow(c, nx, 60, nx, 240, w(-netCold), C.res); }
+  c.font='12px '+SANS; c.fillStyle = netCold > 0.5 ? C.bad : C.muted; c.fillText(Math.abs(netCold).toFixed(1) + ' J', nx - 18, 150);
+  c.fillText(netCold > 0.5 ? 'cold → hot!' : netCold < -0.5 ? 'hot → cold' : 'none', nx - 18, 166);
+}
+$('cbE').addEventListener('input', combRender);
+
+/* ================= CYCLE EXPLORER ================= */
+const CY = {kind:'carnot', f:5, phase:0, run:!reduceMotion, steps:[]};
+function buildCycle(){
+  const f = CY.f, g = (f+2)/f, steps = [], N = 60;
+  const isoPts = (T, Va, Vb) => { const p = []; for (let i=0;i<=N;i++){ const V = Va + (Vb-Va)*i/N; p.push([V, R*T/V/1000*1000, T]); } return p; }; // P in kPa with V in L: P = RT/V (J/L = kPa)
+  const adiPts = (Va, Ta, Vb) => { const p = []; for (let i=0;i<=N;i++){ const V = Va + (Vb-Va)*i/N, T = Ta*Math.pow(Va/V, g-1); p.push([V, R*T/V, T]); } return p; };
+  const chorPts = (V, Ta, Tb) => { const p = []; for (let i=0;i<=N;i++){ const T = Ta + (Tb-Ta)*i/N; p.push([V, R*T/V, T]); } return p; };
+  if (CY.kind === 'carnot'){
+    const Th = +$('cTh').value, Tc = Math.min(+$('cTc').value, Th - 20), r = +$('cR').value;
+    const V1 = 1, V2 = r, V3 = V2*Math.pow(Th/Tc, f/2), V4 = V1*Math.pow(Th/Tc, f/2);
+    const Qh = R*Th*Math.log(V2/V1), Qc = R*Tc*Math.log(V3/V4), dUad = f/2*R*(Th - Tc);
+    steps.push({n:'1', name:'Isothermal expansion at T_h', pts:isoPts(Th, V1, V2), Q:Qh, W:Qh, with:'hot reservoir', heat:'hot'});
+    steps.push({n:'2', name:'Adiabatic expansion', pts:adiPts(V2, Th, V3), Q:0, W:dUad, with:'none (insulated)', heat:'none'});
+    steps.push({n:'3', name:'Isothermal compression at T_c', pts:isoPts(Tc, V3, V4), Q:-Qc, W:-Qc, with:'cold reservoir', heat:'cold'});
+    steps.push({n:'4', name:'Adiabatic compression', pts:adiPts(V4, Tc, V1), Q:0, W:-dUad, with:'none (insulated)', heat:'none'});
+    CY.e = 1 - Tc/Th; CY.ec = 1 - Tc/Th;
+    $('cThOut').textContent = Th + ' K'; $('cTcOut').textContent = Tc + ' K'; $('cROut').textContent = r.toFixed(1);
+  } else if (CY.kind === 'otto'){
+    const r = +$('oR').value, T1 = 300, V1 = r, V2 = 1, T2 = T1*Math.pow(r, g-1), T3 = Math.max(+$('oT3').value, T2 + 50), T4 = T3/Math.pow(r, g-1);
+    const cv = f/2*R;
+    steps.push({n:'1→2', name:'Adiabatic compression', pts:adiPts(V1, T1, V2), Q:0, W:-cv*(T2 - T1), with:'none', heat:'none'});
+    steps.push({n:'2→3', name:'Ignition, constant volume', pts:chorPts(V2, T2, T3), Q:cv*(T3 - T2), W:0, with:'burning fuel', heat:'hot'});
+    steps.push({n:'3→4', name:'Power stroke, adiabatic', pts:adiPts(V2, T3, V1), Q:0, W:cv*(T3 - T4), with:'none', heat:'none'});
+    steps.push({n:'4→1', name:'Exhaust, constant volume', pts:chorPts(V1, T4, T1), Q:-cv*(T4 - T1), W:0, with:'exhaust (environment)', heat:'cold'});
+    CY.e = 1 - Math.pow(1/r, g-1); CY.ec = 1 - T1/T3;
+    $('oROut').textContent = r.toFixed(1); $('oT3Out').textContent = Math.round(T3) + ' K' + (T3 > +$('oT3').value ? ' (raised above T₂)' : '');
+  } else {
+    const Th = +$('sTh').value, Tc = Math.min(+$('sTc').value, Th - 20), r = +$('sR').value, reg = $('sReg').checked;
+    const Vi = 1, Vf = r, cv = f/2*R, Q1 = R*Th*Math.log(r), Q3 = R*Tc*Math.log(r), dU = cv*(Th - Tc);
+    steps.push({n:'1', name:'Isothermal expansion at T_h', pts:isoPts(Th, Vi, Vf), Q:Q1, W:Q1, with:'hot reservoir', heat:'hot'});
+    steps.push({n:'2', name:'Cooling, constant volume', pts:chorPts(Vf, Th, Tc), Q:-dU, W:0, with: reg ? 'regenerator (stored)' : 'cold reservoir', heat: reg ? 'reg' : 'cold'});
+    steps.push({n:'3', name:'Isothermal compression at T_c', pts:isoPts(Tc, Vf, Vi), Q:-Q3, W:-Q3, with:'cold reservoir', heat:'cold'});
+    steps.push({n:'4', name:'Heating, constant volume', pts:chorPts(Vi, Tc, Th), Q:dU, W:0, with: reg ? 'regenerator (returned)' : 'hot reservoir', heat: reg ? 'reg' : 'hot'});
+    const ec = 1 - Tc/Th; CY.ec = ec; CY.e = reg ? ec : ec/(1 + f*ec/(2*Math.log(r)));
+    $('sThOut').textContent = Th + ' K'; $('sTcOut').textContent = Tc + ' K'; $('sROut').textContent = r.toFixed(1);
+  }
+  CY.steps = steps;
+  $('cyE').textContent = pct(CY.e); $('cyC').textContent = pct(CY.ec);
+}
+function cyRows(active){
+  $('cyRows').innerHTML = CY.steps.map((s,i) => '<tr' + (i === active ? ' class="on"' : '') + '><td>' + s.n + '</td><td>' + s.name.replace('T_h','<i>T</i><sub>h</sub>').replace('T_c','<i>T</i><sub>c</sub>') + '</td><td class="' + (s.Q > 0.5 ? 'pos' : s.Q < -0.5 ? 'neg' : '') + '">' + (Math.abs(s.Q) < 0.5 ? '0' : (s.Q > 0 ? '+' : '') + signed(s.Q, 0)) + '</td><td>' + (Math.abs(s.W) < 0.5 ? '0' : (s.W > 0 ? '+' : '') + signed(s.W, 0)) + '</td><td>' + s.with + '</td></tr>').join('') +
+    (() => { const W = CY.steps.reduce((a,s) => a + s.W, 0), Qin = CY.steps.reduce((a,s) => a + (s.Q > 0 && s.heat !== 'reg' ? s.Q : 0), 0); return '<tr><td></td><td><b>Net work, and efficiency W/Q<sub>in</sub></b></td><td></td><td><b>' + signed(W, 0) + '</b></td><td><b>' + pct(W/Qin) + '</b></td></tr>'; })();
+}
+function cyPoint(){ // returns {step, idx-fraction point}
+  const n = CY.steps.length, t = ((CY.phase % n) + n) % n, k = Math.floor(t), fr = t - k, pts = CY.steps[k].pts, m = pts.length - 1, j = Math.min(m-1, Math.floor(fr*m)), ff = fr*m - j;
+  const a = pts[j], b = pts[j+1];
+  return {k, V: a[0] + (b[0]-a[0])*ff, P: a[1] + (b[1]-a[1])*ff, T: a[2] + (b[2]-a[2])*ff};
+}
+function cyDraw(){
+  const c = cyCtx; if (!c || !CY.steps.length) return;
+  const W=640, H=380; let vmax = 0, pmax = 0;
+  CY.steps.forEach(s => s.pts.forEach(p => { vmax = Math.max(vmax, p[0]); pmax = Math.max(pmax, p[1]); }));
+  vmax *= 1.1; pmax *= 1.12;
+  const nice = x => { const p = Math.pow(10, Math.floor(Math.log10(x/5))), m = x/5/p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10)*p; };
+  const sv = nice(vmax), sp = nice(pmax), xt = [], yt = []; for (let v=0; v<=vmax; v+=sv) xt.push(+v.toFixed(2)); for (let v=0; v<=pmax; v+=sp) yt.push(Math.round(v));
+  const ax = axes(c, W, H, [60,16,16,40], [0, vmax], [0, pmax], xt, yt, [['V','i'],['  (L)','s']], [['P','i'],['  (kPa)','s']], v => String(v), v => v.toLocaleString('en-US'));
+  const cols = {hot:C.hot, cold:C.cold, none:C.ink, reg:C.gold};
+  // shade the enclosed area (net work)
+  c.fillStyle=C.work; c.globalAlpha=0.12; c.beginPath(); let first = true; CY.steps.forEach(s => s.pts.forEach(p => { const x = ax.X(p[0]), y = ax.Y(p[1]); first ? (c.moveTo(x,y), first = false) : c.lineTo(x,y); })); c.closePath(); c.fill(); c.globalAlpha=1;
+  const pt = cyPoint();
+  CY.steps.forEach((s,i) => { c.strokeStyle = cols[s.heat]; c.lineWidth = i === pt.k ? 3.6 : 2.4; c.beginPath(); s.pts.forEach((p,j) => { const x = ax.X(p[0]), y = ax.Y(p[1]); j?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
+    const mid = s.pts[Math.floor(s.pts.length/2)], a = s.pts[Math.floor(s.pts.length/2)-1]; const ang = Math.atan2(ax.Y(mid[1]) - ax.Y(a[1]), ax.X(mid[0]) - ax.X(a[0]));
+    c.fillStyle = cols[s.heat]; c.beginPath(); const x = ax.X(mid[0]), y = ax.Y(mid[1]); c.moveTo(x + Math.cos(ang)*8, y + Math.sin(ang)*8); c.lineTo(x + Math.cos(ang+2.5)*8, y + Math.sin(ang+2.5)*8); c.lineTo(x + Math.cos(ang-2.5)*8, y + Math.sin(ang-2.5)*8); c.closePath(); c.fill();
+    c.fillStyle=C.muted; c.font='600 12px '+SANS; c.textAlign='center'; c.fillText(s.n, x + Math.sin(ang)*16, y - Math.cos(ang)*16 + 4); });
+  c.fillStyle=C.acc; c.beginPath(); c.arc(ax.X(pt.V), ax.Y(pt.P), 7, 0, 7); c.fill();
+  c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='right'; c.fillText('Shaded area = net work per cycle', W-22, 32);
+  // cylinder
+  const d = cylCtx; if (!d) return;
+  const CW=640, CH=170; d.clearRect(0,0,CW,CH); d.fillStyle=C.surface; d.fillRect(0,0,CW,CH);
+  const x0 = 70, len = 440*pt.V/vmax, y0 = 40, hh = 80, s = CY.steps[pt.k];
+  const tc = Math.max(0, Math.min(1, (pt.T - 250)/(Math.max(...CY.steps.flatMap(q => q.pts.map(p => p[2]))) - 250 || 1)));
+  const hc = [196,64,43], cc = [43,103,209]; d.fillStyle = 'rgba(' + cc.map((v,k) => Math.round(v + (hc[k]-v)*tc)).join(',') + ',0.25)'; d.fillRect(x0, y0, len, hh);
+  d.strokeStyle=C.ink; d.lineWidth=2.5; d.beginPath(); d.moveTo(x0+480, y0); d.lineTo(x0, y0); d.lineTo(x0, y0+hh); d.lineTo(x0+480, y0+hh); d.stroke();
+  d.fillStyle=C.ink; d.fillRect(x0+len, y0+2, 7, hh-4); d.fillRect(x0+len+7, y0+hh/2-4, 50, 8);
+  const lab = s.heat === 'hot' ? (CY.kind === 'otto' ? 'burning fuel' : 'hot reservoir') : s.heat === 'cold' ? (CY.kind === 'otto' ? 'exhaust' : 'cold reservoir') : s.heat === 'reg' ? 'regenerator' : 'insulated';
+  d.fillStyle = s.heat === 'hot' ? C.hot : s.heat === 'cold' ? C.cold : s.heat === 'reg' ? C.gold : C.res;
+  d.globalAlpha = s.heat === 'none' ? 0.35 : 0.85; d.fillRect(x0 - 6, y0 + hh + 8, 200, 10); d.globalAlpha = 1;
+  d.font='600 13px '+SANS; d.textAlign='left'; d.fillText('in contact with: ' + lab + (s.Q > 0.5 ? ' (heat in)' : s.Q < -0.5 ? ' (heat out)' : ''), x0, y0 + hh + 36);
+  d.fillStyle=C.ink; d.font='13px '+SANS; d.textAlign='right'; d.fillText(Math.round(pt.T) + ' K, ' + pt.V.toFixed(2) + ' L', CW-20, 24);
+  d.textAlign='left'; d.fillText('Step ' + s.n + ': ' + s.name.replace('T_h','Th').replace('T_c','Tc'), x0, 24);
+  if (CY._lastK !== pt.k){ CY._lastK = pt.k; cyRows(pt.k); }
+}
+function cyRebuild(){ buildCycle(); CY._lastK = -1; cyDraw(); if (!cyCtx) cyRows(0); }
+document.querySelectorAll('[data-cyc]').forEach(b => b.addEventListener('click', () => {
+  CY.kind = b.dataset.cyc; document.querySelectorAll('[data-cyc]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.cyc === CY.kind)));
+  $('ctlCarnot').hidden = CY.kind !== 'carnot'; $('ctlOtto').hidden = CY.kind !== 'otto'; $('ctlStirling').hidden = CY.kind !== 'stirling'; CY.phase = 0; cyRebuild(); }));
+document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { CY.f = +b.dataset.f; document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.f === CY.f))); cyRebuild(); }));
+['cTh','cTc','cR','oR','oT3','sTh','sTc','sR'].forEach(id => $(id).addEventListener('input', cyRebuild));
+$('sReg').addEventListener('change', cyRebuild);
+
+/* ================= LAYOUT + LOOP ================= */
+let flCtx, caCtx, cbCtx, cyCtx, cylCtx;
+function layout(){
+  flCtx = fit($('flowCanvas'), 640, 380); caCtx = fit($('caCanvas'), 640, 320); cbCtx = fit($('combCanvas'), 640, 300);
+  cyCtx = fit($('cycCanvas'), 640, 380); cylCtx = fit($('cylCanvas'), 640, 170);
+  redrawAll();
+}
+function redrawAll(){ flowRender(); caRender(); combRender(); cyRebuild(); }
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(layout, 80); });
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { readColors(); redrawAll(); });
+let visCy = true; new IntersectionObserver(es => es.forEach(e => { visCy = e.isIntersecting; })).observe($('cycCanvas'));
+let last = performance.now();
+function loop(now){
+  const dt = Math.max(0, Math.min(0.05, (now-last)/1000)); last = now;
+  if (CY.run && visCy && cyCtx){ CY.phase = (CY.phase + dt*0.5) % CY.steps.length; cyDraw(); }
+  requestAnimationFrame(loop);
+}
+layout();
+requestAnimationFrame(loop);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(redrawAll);
+})();
+</script>
+</body>
+</html>
