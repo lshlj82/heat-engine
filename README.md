@@ -14,6 +14,17 @@ Created by **Claude Opus 5.5**, based on the lecture notes by **Sang Hoon Lee** 
 
 **Real heat engines.** An animated cycle explorer for the Carnot, Otto, and Stirling cycles, with a PV diagram (net work shaded), the cylinder and what it is in contact with at each step, and a table of heat and work per step for one mole. Adjust temperatures, compression ratios, and the working gas (f = 3 or 5), and switch the Stirling engine's regenerator on or off. The Otto efficiency 1 − (V<sub>2</sub>/V<sub>1</sub>)<sup>γ−1</sup> (Problem 4.18) and the Stirling efficiency with and without a regenerator (Problem 4.21) are compared with the Carnot efficiency between the cycle's extreme temperatures. The Diesel engine is described in the text.
 
+## See also
+
+**[Beyond the Carnot Engine](https://lshlj82.github.io/Chambadal-Novikov-Curzon-Ahlborn-engine/)** ([한국어](https://lshlj82.github.io/Chambadal-Novikov-Curzon-Ahlborn-engine/ko.html), [source](https://github.com/lshlj82/Chambadal-Novikov-Curzon-Ahlborn-engine)) is a supplementary page on the endoreversible engine from Problem 4.6. The same efficiency at maximum power was found in 1957 by Chambadal and Novikov, so the page calls it the Chambadal–Novikov–Curzon–Ahlborn engine. It adds:
+
+- a step-by-step derivation;
+- the actual working cycle on a P–V diagram;
+- entropy production and the two limits;
+- a comparison with real power plants;
+- the case of unequal conductances;
+- remarks on a quantum-dot heat engine (S. H. Lee, J. Um, and H. Park, *Phys. Rev. E* **98**, 052137 (2018)).
+
 ## Running it
 
 There is nothing to build or install. The whole demo is one self-contained file, `index.html`, with all CSS and JavaScript inline.
@@ -55,7 +66,7 @@ python3 -m http.server 8000
 - Demo: Claude Opus 5.5
 - Physics content and examples: lecture notes by Sang Hoon Lee
 - The lecture follows Daniel V. Schroeder, *An Introduction to Thermal Physics* (Sections 4.1 to 4.3 and Problems 4.5 to 4.8, 4.16 to 4.18, and 4.21).
-- Curzon–Ahlborn engine: F. L. Curzon and B. Ahlborn, "Efficiency of a Carnot engine at maximum power output," *American Journal of Physics* 43, 22–24 (1975).
+- Curzon–Ahlborn engine: F. L. Curzon and B. Ahlborn, "Efficiency of a Carnot engine at maximum power output," *American Journal of Physics* 43, 22–24 (1975). The same result appears earlier in P. Chambadal, *Les centrales nucléaires* (Armand Colin, Paris, 1957), and I. I. Novikov, *Atomnaya Energiya* **3**(11), 409–412 (1957).
 
 ## License
 
