@@ -98,7 +98,7 @@ table.steps th,table.steps td{padding:.4rem .55rem;border-bottom:1px solid var(-
 table.steps th:first-child,table.steps td:first-child,table.steps th:nth-child(2),table.steps td:nth-child(2),table.steps th:last-child,table.steps td:last-child{text-align:left}
 table.steps th{font-weight:600;color:var(--muted)}
 table.steps tr.on td{background:var(--band)}
-.pos{color:var(--hot)} .neg{color:var(--cold)}
+.pos{color:var(--hot);color:color-mix(in srgb,var(--hot) 85%,var(--ink))} .neg{color:var(--cold)}
 
 footer{border-top:1px solid var(--rule);padding:2rem 0 3rem;font-family:var(--sans);font-size:.9rem;color:var(--muted)}
 footer p{margin:0 0 .4rem}
@@ -153,11 +153,11 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
       </div>
       <div class="ctl">
         <label for="fTh"><span class="lt">\(T_h\)</span> <output id="fThOut"></output></label>
-        <input type="range" id="fTh" min="250" max="1200" step="1" value="500">
+        <input type="range" id="fTh" aria-label="T_h, hot reservoir temperature (K)" min="250" max="1200" step="1" value="500">
       </div>
       <div class="ctl">
         <label for="fTc"><span class="lt">\(T_c\)</span> <output id="fTcOut"></output></label>
-        <input type="range" id="fTc" min="4" max="400" step="1" value="300">
+        <input type="range" id="fTc" aria-label="T_c, cold reservoir temperature (K)" min="4" max="400" step="1" value="300">
       </div>
       <div class="ctl">
         <label for="fFrac"><span class="lt" id="fFracL">Efficiency, as a share of the limit</span> <output id="fFracOut"></output></label>
@@ -191,11 +191,11 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
     <div class="panel">
       <div class="ctl">
         <label for="caTh"><span class="lt">\(T_h\)</span> <output id="caThOut"></output></label>
-        <input type="range" id="caTh" min="400" max="1500" step="1" value="873">
+        <input type="range" id="caTh" aria-label="T_h, hot reservoir temperature (K)" min="400" max="1500" step="1" value="873">
       </div>
       <div class="ctl">
         <label for="caTc"><span class="lt">\(T_c\)</span> <output id="caTcOut"></output></label>
-        <input type="range" id="caTc" min="250" max="400" step="1" value="298">
+        <input type="range" id="caTc" aria-label="T_c, cold reservoir temperature (K)" min="250" max="400" step="1" value="298">
       </div>
       <dl class="stats">
         <dt>Best \(T_{hw}\)</dt><dd id="caThw">–</dd>
@@ -262,8 +262,8 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
         <div class="btns"><button type="button" data-cyc="carnot" aria-pressed="true">Carnot</button><button type="button" data-cyc="otto">Otto</button><button type="button" data-cyc="stirling">Stirling</button></div>
       </div>
       <div id="ctlCarnot">
-        <div class="ctl"><label for="cTh"><span class="lt">\(T_h\)</span> <output id="cThOut"></output></label><input type="range" id="cTh" min="350" max="1000" step="5" value="500"></div>
-        <div class="ctl"><label for="cTc"><span class="lt">\(T_c\)</span> <output id="cTcOut"></output></label><input type="range" id="cTc" min="100" max="340" step="5" value="300"></div>
+        <div class="ctl"><label for="cTh"><span class="lt">\(T_h\)</span> <output id="cThOut"></output></label><input type="range" id="cTh" aria-label="T_h, hot reservoir temperature (K)" min="350" max="1000" step="5" value="500"></div>
+        <div class="ctl"><label for="cTc"><span class="lt">\(T_c\)</span> <output id="cTcOut"></output></label><input type="range" id="cTc" aria-label="T_c, cold reservoir temperature (K)" min="100" max="340" step="5" value="300"></div>
         <div class="ctl"><label for="cR"><span class="lt">Isothermal expansion \(V_2/V_1\)</span> <output id="cROut"></output></label><input type="range" id="cR" min="1.2" max="4" step="0.1" value="2"></div>
       </div>
       <div id="ctlOtto" hidden>
@@ -272,13 +272,13 @@ button.theme-btn svg{width:20px; height:20px; fill:none; stroke:currentColor; st
         <small class="cap" style="display:block;margin:0 0 1rem">Intake at \(T_1 = 300\) K.</small>
       </div>
       <div id="ctlStirling" hidden>
-        <div class="ctl"><label for="sTh"><span class="lt">\(T_h\)</span> <output id="sThOut"></output></label><input type="range" id="sTh" min="350" max="1000" step="5" value="600"></div>
-        <div class="ctl"><label for="sTc"><span class="lt">\(T_c\)</span> <output id="sTcOut"></output></label><input type="range" id="sTc" min="100" max="340" step="5" value="300"></div>
+        <div class="ctl"><label for="sTh"><span class="lt">\(T_h\)</span> <output id="sThOut"></output></label><input type="range" id="sTh" aria-label="T_h, hot reservoir temperature (K)" min="350" max="1000" step="5" value="600"></div>
+        <div class="ctl"><label for="sTc"><span class="lt">\(T_c\)</span> <output id="sTcOut"></output></label><input type="range" id="sTc" aria-label="T_c, cold reservoir temperature (K)" min="100" max="340" step="5" value="300"></div>
         <div class="ctl"><label for="sR"><span class="lt">Compression ratio \(V_f/V_i\)</span> <output id="sROut"></output></label><input type="range" id="sR" min="1.5" max="5" step="0.1" value="3"></div>
         <div class="ctl"><label class="check"><input type="checkbox" id="sReg" checked> Regenerator</label></div>
       </div>
-      <div class="ctl"><label for="cF"><span class="lt">Working gas</span></label>
-        <div class="btns"><button type="button" data-f="5" aria-pressed="true">Air, f = 5</button><button type="button" data-f="3">Monatomic, f = 3</button></div>
+      <div class="ctl"><span class="lbl" id="cFLbl">Working gas</span>
+        <div class="btns" role="group" aria-labelledby="cFLbl"><button type="button" data-f="5" aria-pressed="true">Air, f = 5</button><button type="button" data-f="3">Monatomic, f = 3</button></div>
       </div>
       <dl class="stats">
         <dt>Efficiency</dt><dd id="cyE">–</dd>
@@ -429,7 +429,9 @@ function caRender(){
   c.fillStyle=C.muted; c.textAlign='left'; c.fillText('maximum power', ax.X(xbest)+8, ax.Y(Pw(xbest))-8);
   c.textAlign='right'; c.fillText('no heat flows →', ax.X(xhi)-4, H-48); c.textAlign='left'; c.fillText('← no work', ax.X(xlo)+4, H-48);
 }
-['caTh','caTc'].forEach(id => $(id).addEventListener('input', caRender));
+// keep T_c at least `gap` below T_h by moving the other slider, so the inputs always show the temperatures used
+function keepGap(th, tc, gap, changed){ const a = $(th), b = $(tc); if (+b.value > +a.value - gap){ if (changed === th) b.value = +a.value - gap; else a.value = +b.value + gap; } }
+['caTh','caTc'].forEach(id => $(id).addEventListener('input', () => { keepGap('caTh', 'caTc', 20, id); caRender(); }));
 
 /* ================= SUPER-ENGINE + CARNOT FRIDGE ================= */
 function combRender(){
@@ -514,29 +516,36 @@ function cyPoint(){ // returns {step, idx-fraction point}
   const a = pts[j], b = pts[j+1];
   return {k, V: a[0] + (b[0]-a[0])*ff, P: a[1] + (b[1]-a[1])*ff, T: a[2] + (b[2]-a[2])*ff};
 }
+const cyBg = document.createElement('canvas');
 function cyDraw(){
   const c = cyCtx; if (!c || !CY.steps.length) return;
-  const W=640, H=380; let vmax = 0, pmax = 0;
+  const W=640, H=380, cols = {hot:C.hot, cold:C.cold, none:C.ink, reg:C.gold}, pt = cyPoint();
+  // axes, shading and the cycle path change only with the inputs, size or theme: draw them once and reuse the image
+  if (!CY.bg){ let vmax = 0, pmax = 0;
   CY.steps.forEach(s => s.pts.forEach(p => { vmax = Math.max(vmax, p[0]); pmax = Math.max(pmax, p[1]); }));
   vmax *= 1.1; pmax *= 1.12;
   const nice = x => { const p = Math.pow(10, Math.floor(Math.log10(x/5))), m = x/5/p; return (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10)*p; };
   const sv = nice(vmax), sp = nice(pmax), xt = [], yt = []; for (let v=0; v<=vmax; v+=sv) xt.push(+v.toFixed(2)); for (let v=0; v<=pmax; v+=sp) yt.push(Math.round(v));
   const ax = axes(c, W, H, [60,16,16,40], [0, vmax], [0, pmax], xt, yt, [['V','i'],['  (L)','s']], [['P','i'],['  (kPa)','s']], v => String(v), v => v.toLocaleString('en-US'));
-  const cols = {hot:C.hot, cold:C.cold, none:C.ink, reg:C.gold};
   // shade the enclosed area (net work)
   c.fillStyle=C.work; c.globalAlpha=0.12; c.beginPath(); let first = true; CY.steps.forEach(s => s.pts.forEach(p => { const x = ax.X(p[0]), y = ax.Y(p[1]); first ? (c.moveTo(x,y), first = false) : c.lineTo(x,y); })); c.closePath(); c.fill(); c.globalAlpha=1;
-  const pt = cyPoint();
-  CY.steps.forEach((s,i) => { c.strokeStyle = cols[s.heat]; c.lineWidth = i === pt.k ? 3.6 : 2.4; c.beginPath(); s.pts.forEach((p,j) => { const x = ax.X(p[0]), y = ax.Y(p[1]); j?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
+  CY.steps.forEach((s,i) => { c.strokeStyle = cols[s.heat]; c.lineWidth = 2.4; c.beginPath(); s.pts.forEach((p,j) => { const x = ax.X(p[0]), y = ax.Y(p[1]); j?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
     const mid = s.pts[Math.floor(s.pts.length/2)], a = s.pts[Math.floor(s.pts.length/2)-1]; const ang = Math.atan2(ax.Y(mid[1]) - ax.Y(a[1]), ax.X(mid[0]) - ax.X(a[0]));
     c.fillStyle = cols[s.heat]; c.beginPath(); const x = ax.X(mid[0]), y = ax.Y(mid[1]); c.moveTo(x + Math.cos(ang)*8, y + Math.sin(ang)*8); c.lineTo(x + Math.cos(ang+2.5)*8, y + Math.sin(ang+2.5)*8); c.lineTo(x + Math.cos(ang-2.5)*8, y + Math.sin(ang-2.5)*8); c.closePath(); c.fill();
     c.fillStyle=C.muted; c.font='600 12px '+SANS; c.textAlign='center'; c.fillText(s.n, x + Math.sin(ang)*16, y - Math.cos(ang)*16 + 4); });
-  c.fillStyle=C.acc; c.beginPath(); c.arc(ax.X(pt.V), ax.Y(pt.P), 7, 0, 7); c.fill();
   c.fillStyle=C.muted; c.font='12px '+SANS; c.textAlign='right'; c.fillText('Shaded area = net work per cycle', W-22, 32);
+  cyBg.width = c.canvas.width; cyBg.height = c.canvas.height; cyBg.getContext('2d').drawImage(c.canvas, 0, 0);
+  CY.bg = {ax, vmax, tmax: Math.max(...CY.steps.flatMap(q => q.pts.map(p => p[2])))};
+  } else { c.save(); c.setTransform(1,0,0,1,0,0); c.drawImage(cyBg, 0, 0); c.restore(); }
+  const {ax, vmax, tmax} = CY.bg, sk = CY.steps[pt.k];
+  // only the step in progress (drawn thicker on top) and the state point move
+  c.strokeStyle = cols[sk.heat]; c.lineWidth = 3.6; c.beginPath(); sk.pts.forEach((p,j) => { const x = ax.X(p[0]), y = ax.Y(p[1]); j?c.lineTo(x,y):c.moveTo(x,y); }); c.stroke();
+  c.fillStyle=C.acc; c.beginPath(); c.arc(ax.X(pt.V), ax.Y(pt.P), 7, 0, 7); c.fill();
   // cylinder
   const d = cylCtx; if (!d) return;
   const CW=640, CH=170; d.clearRect(0,0,CW,CH); d.fillStyle=C.surface; d.fillRect(0,0,CW,CH);
   const x0 = 70, len = 440*pt.V/vmax, y0 = 40, hh = 80, s = CY.steps[pt.k];
-  const tc = Math.max(0, Math.min(1, (pt.T - 250)/(Math.max(...CY.steps.flatMap(q => q.pts.map(p => p[2]))) - 250 || 1)));
+  const tc = Math.max(0, Math.min(1, (pt.T - 250)/(tmax - 250 || 1)));
   const hc = [196,64,43], cc = [43,103,209]; d.fillStyle = 'rgba(' + cc.map((v,k) => Math.round(v + (hc[k]-v)*tc)).join(',') + ',0.25)'; d.fillRect(x0, y0, len, hh);
   d.strokeStyle=C.ink; d.lineWidth=2.5; d.beginPath(); d.moveTo(x0+480, y0); d.lineTo(x0, y0); d.lineTo(x0, y0+hh); d.lineTo(x0+480, y0+hh); d.stroke();
   d.fillStyle=C.ink; d.fillRect(x0+len, y0+2, 7, hh-4); d.fillRect(x0+len+7, y0+hh/2-4, 50, 8);
@@ -548,12 +557,13 @@ function cyDraw(){
   d.textAlign='left'; d.fillText('Step ' + s.n + ': ' + s.name.replace('T_h','Th').replace('T_c','Tc'), x0, 24);
   if (CY._lastK !== pt.k){ CY._lastK = pt.k; cyRows(pt.k); }
 }
-function cyRebuild(){ buildCycle(); CY._lastK = -1; cyDraw(); if (!cyCtx) cyRows(0); }
+function cyRebuild(){ buildCycle(); CY.bg = null; CY._lastK = -1; cyDraw(); if (!cyCtx) cyRows(0); }
 document.querySelectorAll('[data-cyc]').forEach(b => b.addEventListener('click', () => {
   CY.kind = b.dataset.cyc; document.querySelectorAll('[data-cyc]').forEach(x => x.setAttribute('aria-pressed', String(x.dataset.cyc === CY.kind)));
   $('ctlCarnot').hidden = CY.kind !== 'carnot'; $('ctlOtto').hidden = CY.kind !== 'otto'; $('ctlStirling').hidden = CY.kind !== 'stirling'; CY.phase = 0; cyRebuild(); }));
 document.querySelectorAll('[data-f]').forEach(b => b.addEventListener('click', () => { CY.f = +b.dataset.f; document.querySelectorAll('[data-f]').forEach(x => x.setAttribute('aria-pressed', String(+x.dataset.f === CY.f))); cyRebuild(); }));
-['cTh','cTc','cR','oR','oT3','sTh','sTc','sR'].forEach(id => $(id).addEventListener('input', cyRebuild));
+const GAP = {cTh:['cTh','cTc'], cTc:['cTh','cTc'], sTh:['sTh','sTc'], sTc:['sTh','sTc']};
+['cTh','cTc','cR','oR','oT3','sTh','sTc','sR'].forEach(id => $(id).addEventListener('input', () => { if (GAP[id]) keepGap(GAP[id][0], GAP[id][1], 20, id); cyRebuild(); }));
 $('sReg').addEventListener('change', cyRebuild);
 
 /* ================= LAYOUT + LOOP ================= */
